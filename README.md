@@ -36,8 +36,21 @@ TODO: write description
 ![components](images/components.png) 
 
 ## App
+`App` はアプリケーションの初期化など振舞いをカスタマイズしたり、アプリケーションの環境を設定したりする、エントリポイント的なもの。サーバサイドとクライアントサイドでなるべく同じ API を提供できるよう、うまく抽象化する。
+
+## Router
+`Router` は以下のイベントを監視して、`Controller` の適切なハンドラに dispatch してルーティングする。
+
+- クライアントサイドでの `popstate` イベント
+- サーバサイドでの `request` イベント
+- クライアントサイドでのユーザーのボタンクリックなどの DOM イベント
+
+`Router` は `Controller` のハンドラに dispatch する際に、そのハンドラに `Context` をバインドすることで、ハンドラ内で抽象的なインターフェイスを操作して、処理できるようにする。
 
 ## Routes
+`Routes` は、クライアントサイドの `popstate` イベントや サーバサイドの `request` イベントが、`Controller` のあるハンドラで処理できるようルーティング定義が書かれたもの。
+
+以下のように、Rails に近い感じで定義できる。
 
 ```js
 module.exports = {
@@ -62,9 +75,30 @@ module.exports = {
 }
 ```
 
-## Router
+なお、クライアントサイドでは、HTTP の GET のみが `Router` でルーティングが有効になる。
+
+ルーティングパラメータは、以下のように、`Controller` のハンドラにバインドされた `Context` の `params` から取得できる。
+
+```js
+// controller
+module.exports = {
+  routes: {
+    show: function () {
+      var id = this.params.id;
+      // something todo ...
+    }
+  }
+};
+```
 
 ## Controller
+`Controller` は以下のハンドリングを行う。
+
+- クライアントサイドでの `popstate` イベント
+- サーバサイドでの `request` イベント
+- クライアントサイドでのユーザーのボタンクリックなどの DOM イベント
+
+以下は`Controller`のコード例。
 
 ```js
 module.exports = {
@@ -83,9 +117,15 @@ module.exports = {
 
 ## Model
 
+TODO: 
+
 ## Adapter
 
+TODO: 
+
 ## View 
+
+TODO: 
 
 ### Template Engine
 デフォルトで使用するテンプレートエンジンの採用基準は以下のとおり。
@@ -95,27 +135,64 @@ module.exports = {
 - Logic less
 - Pure HTML markup
 
+候補は以下を予定。
+
+- Handlebars
+- `component/reactive` のテンプレートエンジン(モジュールとして切り出す)
+
 ### Data Binding Engine
-`component/reactive`を利用する。
+データバインディングバインディングエンジンは、`component/reactive`を採用する予定。
+Fend に合わなければ fork して独自にカスタマイズしていく。
+
 
 ## Template
-レンダリングする際に必要なHTMLテンプレート。
-テンプレートSyntaxはテンプレートエンジンに依存する。
-レンダリング高速化のためにプリコンパイルする。
+`Template` はレンダリングする際に使うピュアな HTML で記載されたモジュール。
+`Template` に記述される Syntax はテンプレートエンジンに依存する。
+`Template` はWebアプリケーションが動作する際には、レンダリング高速するために、JavaScript コードにプリコンパイルされたものを利用する。
 
 
 # Fundamental Technology
+<img width="255" height="180" src="https://dl.dropboxusercontent.com/u/6396913/koa/logo.png" />
+<img src="https://github-camo.global.ssl.fastly.net/bde8b0a76c2cac46e076e97f40b83fa06a45ce3e/687474703a2f2f6934392e74696e797069632e636f6d2f65376e6a39762e706e67" />
+
 - Koa
 - Component
 
+
 # Application Directory Structure
+Web アプリケーションのディレクトリ構造は以下のような構造にする。
+
+```
+    project/
+    ├── HISTORY.md
+    ├── Makefile
+    ├── README.md
+    ├── app
+    │   ├── controllers
+    │   ├── models
+    │   ├── routes.js
+    │   ├── templates
+    │   └── views
+    ├── component.json
+    ├── index.js
+    ├── package.json
+    ├── public
+    │   ├── images
+    │   ├── javascripts
+    │   └── stylesheets
+    └── test
+```
+
 
 # Module System
-モジュールシステムは、CommonJS の `require()` スタイル。Component の `require()` を利用する。AMD 最初の段階ではサポートしない。
+モジュールシステムは、CommonJS の `require()` スタイル。
+Component の `require()` を利用する。
 
 
-# Resource Build System
-クライアントへ配信するリソースは、Component の builder を利用。Component の標準の builder がこちらの望むユースケースと合わなければ Component の bulder のプラグイン作って対応する。それでもできなければ、Grunt にするかも。
+# Asset Pipline
+クライアントへ配信するリソースは、Component の builder、その builder のプラグインを利用して事前に結合、minifyしておく。
+Component の標準の builder がこちらの望むユースケースと合わなければ Component の bulder のプラグイン作って対応する。
+それでもできなければ、Grunt にするかも。
 
 
 # Package Manager
@@ -131,12 +208,17 @@ module.exports = {
 
 
 # Test Enviroment
-テスト環境は Rails のような環境は提供しない(と思う)。めんどい、いやユーザー側が自分で構築したいと思うので。
+テスト環境は Rails のような環境は提供しない。めんどい、いやユーザー側が自分で構築したいと思うので。
+
+
+# Loadmap
+- v0.1.0: 基本機能がひととおり最低限動く状態
+- v0.x.0~: ブラッシュアップ、機能の追加
 
 
 # TODO
-- クライアントサイドのMV\*モデルはAngularスタイルにするか？それとも古典的なMVCにするか？
-- クライアントサイドのgenerator対応はどうするか。`facebook/regenerator`で対応する？パフォーマンスが気になる。
+- クライアントサイドのModelとViewの処理方法。Angularスタイルにするか？それとも古典的なMVCの処理にするか？
+- クライアントサイドのgenerator対応はどうするか。`facebook/regenerator`で対応する？パフォーマンスが気になる
 - この `README.md` の英訳
 
 
