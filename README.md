@@ -11,6 +11,10 @@ This document is written specifications and design policy.
 See also `HISTORY.md`.
 
 
+# Contributing
+Open an issue or a pull request with any suggestions you may have.
+
+
 # Concepts
 
 - Rails のようなアプリケーション構造による Webアプリケーション開発の Rail 化
