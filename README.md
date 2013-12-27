@@ -48,7 +48,7 @@ TODO: write description
 `Router` は `Controller` のハンドラに dispatch する際に、そのハンドラに `Context` をバインドすることで、ハンドラ内で抽象的なインターフェイスを操作して、処理できるようにする。
 
 ## Routes
-`Routes` は、クライアントサイドの `popstate` イベントや サーバサイドの `request` イベントが、`Controller` のあるハンドラで処理できるようルーティング定義が書かれたもの。
+`Routes` は、クライアントサイドの `popstate` イベントや サーバサイドの `request` イベントが、`Controller` のあるハンドラで処理できるようルーティング定義を書いたもの。
 
 以下のように、Rails に近い感じで定義できる。
 
@@ -72,7 +72,7 @@ module.exports = {
     put: 'users#update',
     delete: 'users#destroy'
   }
-}
+};
 ```
 
 なお、クライアントサイドでは、HTTP の GET のみが `Router` でルーティングが有効になる。
@@ -116,16 +116,18 @@ module.exports = {
 ```
 
 ## Model
-
-TODO: 
+`Model` は Web アプリケーションのデータとビジネスロジックを実装するモジュール。
+`Model` では、`Adapter` 経由で DB、API、バックエンドなどと通信して、データの CRUD 処理を行う。
+また、バリデーションによるデータチェックや、プラグイン機能で `Model` を拡張できるようにしている。
+`Model` にはデータが変更された際に、`View` または `Data Binding Engine` に変更を通知することができる。
 
 ## Adapter
-
-TODO: 
+`Adapter` は `Model` に対して、DB、API、バックエンドなどの異なったデータソースにおいて、それぞれのデータソースに対してデータの CRUD 処理に適合できるよう、インターフェイスを提供するモジュール。
+`Model` は `Adapter` を変更するだけで、様々なデータソースに対応できるようになる。
 
 ## View 
-
-TODO: 
+`View` は `Model` のデータを元に適切にレンダリングして、ユーザーに UI を提供するモジュール。
+`View` は `Template Engine` または `Data Binding Engine` によって表示内容がレンダリングされる。
 
 ### Template Engine
 デフォルトで使用するテンプレートエンジンの採用基準は以下のとおり。
