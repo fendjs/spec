@@ -15,15 +15,21 @@ See also `HISTORY.md`.
 Open an issue or a pull request with any suggestions you may have.
 
 
+# What is Fend ?
+
+A JavaScript next generation web application framework for front-end.
+
+
 # Concepts
 
 - Rails のようなアプリケーション構造による Webアプリケーション開発の Rail 化
 - クライアントサイドとサーバサイドで動作する isomorphic 的な JavaScript コード
-- クライアントサイドとサーバサイドのレンダリングによる SEO のサポート
-- クライアントサイドとサーバサイドで同じ HTML テンプレートの利用
-- クライアントサイドとサーバサイドで同じルーティングロジックの利用
+- サーバサイドのレンダリングによるページローディングの高速化と SEO のサポート
+- クライアントサイドとサーバサイドでの HTML テンプレートの共有
+- クライアントサイドとサーバサイドでの ルーティングの共有
 - Rails の Asset Pipeline のような、concat、minify された JavaScript、CSS などのリソース配信
 - データバインディングによる View のレンダリング
+- Adapter による柔軟なデータソースへアクセス
 - Pluggable なモジュール (Ex: View、Model、etc...) のサポート
 
 
@@ -52,7 +58,7 @@ TODO: write description
 `Router` は `Controller` のハンドラに dispatch する際に、そのハンドラに `Context` をバインドすることで、ハンドラ内で抽象的なインターフェイスを操作して、処理できるようにする。
 
 ## Routes
-`Routes` は、クライアントサイドの `popstate` イベントや サーバサイドの `request` イベントが、`Controller` のあるハンドラで処理できるようルーティング定義を書いたもの。
+`Routes` は、クライアントサイドの `popstate` イベントや サーバサイドの `request` イベントが、`Controller` のあるハンドラで処理できるようルーティング定義を記載したもの。
 
 以下のように、Rails に近い感じで定義できる。
 
@@ -122,19 +128,21 @@ module.exports = {
 ## Model
 `Model` は Web アプリケーションのデータとビジネスロジックを実装するモジュール。
 `Model` では、`Adapter` 経由で DB、API、バックエンドなどと通信して、データの CRUD 処理を行う。
-また、バリデーションによるデータチェックや、プラグイン機能で `Model` を拡張できるようにしている。
+また、バリデーションによるデータチェックや、プラグイン機能で `Model` を拡張できるようにする。
 `Model` にはデータが変更された際に、`View` または `Data Binding Engine` に変更を通知することができる。
 
 ## Adapter
-`Adapter` は `Model` に対して、DB、API、バックエンドなどの異なったデータソースにおいて、それぞれのデータソースに対してデータの CRUD 処理に適合できるよう、インターフェイスを提供するモジュール。
+`Adapter` は `Model` に対して、DB、API、バックエンドなどの異なったデータソースにおいて、それぞれのデータソースに対してデータの CRUD 処理に対応できるよう、インターフェイスを提供するモジュール。
 `Model` は `Adapter` を変更するだけで、様々なデータソースに対応できるようになる。
 
 ## View 
 `View` は `Model` のデータを元に適切にレンダリングして、ユーザーに UI を提供するモジュール。
-`View` は `Template Engine` または `Data Binding Engine` によって表示内容がレンダリングされる。
+`View` は `Template` を元に、`Template Engine` によってコンテンツをレンダリングする。
+クライアントサイドでは、`View` は `Data Binding Engine` によってコンテンツが更新されるようにする。
 
 ### Template Engine
-デフォルトで使用するテンプレートエンジンの採用基準は以下のとおり。
+`Template Engine` は `Template` に対して `Model` などのデータを元に HTML をレンダリングする。
+Fend の `Template Engine` の採用基準は以下のとおり。
 
 - Running on the client and the server
 - Fast
@@ -147,7 +155,10 @@ module.exports = {
 - `component/reactive` のテンプレートエンジン(モジュールとして切り出す)
 
 ### Data Binding Engine
-データバインディングバインディングエンジンは、`component/reactive`を採用する予定。
+`Data Binding Engine` は `Model` のデータ変更通知により、`View` を更新したり、また `View` のコンテンツの変更により、`Model` も更新できるよう、`View` と `Model` を bridge する役割をもったモジュール。
+`Date Binding Engine` はクライアントサイドで動作する。
+
+`Data Binding Engine` は、`component/reactive`を採用する予定。
 Fend に合わなければ fork して独自にカスタマイズしていく。
 
 
@@ -166,7 +177,7 @@ Fend に合わなければ fork して独自にカスタマイズしていく。
 
 
 # Application Directory Structure
-Web アプリケーションのディレクトリ構造は以下のような構造にする。
+Web アプリケーションのディレクトリ構造は以下のような構造にする予定。
 
 ```
     project/
@@ -214,17 +225,17 @@ Component の標準の builder がこちらの望むユースケースと合わ�
 
 
 # Test Enviroment
-テスト環境は Rails のような環境は提供しない。めんどい、いやユーザー側が自分で構築したいと思うので。
+単体テスト環境は Rails のような環境は提供しない。めんどい、いやユーザー側が自分で構築したいと思うので!
 
 
 # Loadmap
 - v0.1.0: 基本機能がひととおり最低限動く状態
-- v0.x.0~: ブラッシュアップ、機能の追加
+- v0.2.0~: ブラッシュアップ、機能の追加
 
 
 # TODO
-- クライアントサイドのModelとViewの処理方法。Angularスタイルにするか？それとも古典的なMVCの処理にするか？
-- クライアントサイドのgenerator対応はどうするか。`facebook/regenerator`で対応する？パフォーマンスが気になる
+- クライアントサイドの `Model` と `View` の処理方法。Angular スタイルにするか？それとも古典的なMVCの処理の仕方にするか？
+- クライアントサイドの generator 対応はどうするか。`facebook/regenerator` で対応する？パフォーマンス、配信される JavaScript のコードサイズが気になる
 - この `README.md` の英訳
 
 
